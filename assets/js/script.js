@@ -65,7 +65,14 @@ let fiveDayForecast = function (cityName) {
       for (let i = 1; i < 6; i++) {
         let date = data.list[i].dt * 1000 // convert to milliseconds
         let convertedDate = new Date(date).toLocaleDateString('en-US')
+        let weatherIcon = data.list[i].weather[0].icon
+        let weatherIconDescription = data.list[i].weather[0].main
+        let iconurl = 'http://openweathermap.org/img/w/' + weatherIcon + '.png'
+        let currentTemp = data.list[i].main.temp
+        let currentHumidity = data.list[i].main.humidity
+        let currentWindSpeed = data.list[i].wind.speed
         $(`#date-${[i]}`).text(convertedDate)
+        $(`#city-name-${[i]}`).text(cityName)
       }
     })
 }
