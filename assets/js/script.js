@@ -10,12 +10,17 @@
 
 apiKey = '8eee76fe0c7536fe5dfad9a4df7257ab'
 
-$('#searchButton').on('click', function () {
+let currentForecast = function () {
   let city = $('#searchInput').val()
   fetch(
     `https://api.openweathermap.org/data/2.5/weather?q=${city}&limit=1&appid=${apiKey}&units=imperial`
   )
     .then(function (response) {
+      if (response.status == 404) {
+        alert('Error: City not found')
+        return
+      }
+      console.log(response)
       return response.json()
     })
     .then(function (data) {
@@ -38,5 +43,16 @@ $('#searchButton').on('click', function () {
       $('#current-temp').text(`${currentTemp}℉`)
       $('#current-humidity').text(`${currentHumidity}% humidity`)
       $('#current-wind').text(`currentWindSpeed: ${currentWindSpeed}`)
+
+      recentSearches(cityName)
     })
-})
+}
+let fiveDayForecast = function () {}
+let recentSearches = function (cityName) {
+  $('#recent-searches-card').removeClass('hidden')
+  $('#recent-searches-list').append(
+    `<li class="list-group-item">${cityName}</li>`
+  )
+}
+
+$('#searchButton').on('click', currentForecast)
