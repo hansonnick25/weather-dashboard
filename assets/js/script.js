@@ -45,9 +45,37 @@ let currentForecast = function () {
       $('#current-wind').text(`currentWindSpeed: ${currentWindSpeed}`)
 
       recentSearches(cityName)
+      fiveDayForecast(cityName)
     })
 }
-let fiveDayForecast = function () {}
+let fiveDayForecast = function (cityName) {
+  fetch(
+    `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=imperial`
+  )
+    .then(function (response) {
+      if (response.status == 404) {
+        alert('Error: City not found')
+        return
+      }
+      console.log(response)
+      return response.json()
+    })
+    .then(function (data) {
+      console.log(data)
+      for (let i = 1; i < 6; i++) {
+        let date = data.list[i].dt * 1000 // convert to milliseconds
+        let convertedDate = new Date(date).toLocaleDateString('en-US')
+        let weatherIcon = data.list[i].weather[0].icon
+        let weatherIconDescription = data.list[i].weather[0].main
+        let iconurl = 'http://openweathermap.org/img/w/' + weatherIcon + '.png'
+        let currentTemp = data.list[i].main.temp
+        let currentHumidity = data.list[i].main.humidity
+        let currentWindSpeed = data.list[i].wind.speed
+        $(`#date-${[i]}`).text(convertedDate)
+        $(`#city-name-${[i]}`).text(cityName)
+      }
+    })
+}
 let recentSearches = function (cityName) {
   $('#recent-searches-card').removeClass('hidden')
   $('#recent-searches-list').append(
