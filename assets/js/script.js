@@ -21,7 +21,6 @@ currentForecast = () => {
   })
 
     .done(function (response) {
-      let cityName = response.name
       let today = new Date()
       let currentDay = String(today.getDate()).padStart(2, '0')
       let currentMonth = String(today.getMonth() + 1).padStart(2, '0')
@@ -30,8 +29,7 @@ currentForecast = () => {
       let currentTemp = Math.round(response.main.temp)
       let currentWeatherIcon = response.weather[0].icon
       let currentWeatherIconDescription = response.weather[0].main
-      let currentIconUrl =
-        'http://openweathermap.org/img/w/' + currentWeatherIcon + '.png'
+      let currentIconUrl = `http://openweathermap.org/img/w/${currentWeatherIcon}.png`
       let currentHumidity = response.main.humidity
       let currentWindSpeed = response.wind.speed
 
@@ -40,14 +38,14 @@ currentForecast = () => {
         .append(
           `<img src=${currentIconUrl} alt=${currentWeatherIconDescription}>`
         )
-      $('#city-name').text(cityName)
+      $('#city-name').text(city)
       $('#date').text(currentDate)
       $('#current-temp').text(`${currentTemp}℉`)
       $('#current-humidity').text(`${currentHumidity}% humidity`)
       $('#current-wind').text(`Wind Speed: ${currentWindSpeed} mph`)
 
-      recentSearches(cityName)
-      fiveDayForecast(cityName)
+      recentSearches(city)
+      fiveDayForecast(city)
     })
 
     .fail(function (response) {
@@ -55,10 +53,10 @@ currentForecast = () => {
     })
 }
 
-fiveDayForecast = cityName => {
+fiveDayForecast = city => {
   $.ajax({
     async: true,
-    url: `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=imperial`,
+    url: `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=imperial`,
     method: 'GET',
     headers: {},
   })
@@ -76,16 +74,18 @@ fiveDayForecast = cityName => {
       })
 
       for (let i = 0; i < 5; i++) {
-        let weatherIconDescription = response.list[i].weather[0].main
-        let weatherIcon = response.list[i].weather[0].icon
-        let iconurl = 'http://openweathermap.org/img/w/' + weatherIcon + '.png'
+        let forecastWeatherIconDescription = response.list[i].weather[0].main
+        let forecastWeatherIcon = response.list[i].weather[0].icon
+        let forecastIconUrl = `http://openweathermap.org/img/w/${forecastWeatherIcon}.png`
         let forecastTemp = Math.round(response.list[i].main.temp)
         let forecastHumidity = response.list[i].main.humidity
         let forecastWindSpeed = response.list[i].wind.speed
         $(`#date-${[i]}`).text(dates[i])
         $(`#icon-${[i]}`)
-          .text(weatherIconDescription)
-          .append(`<img src=${iconurl} alt=${weatherIconDescription}>`)
+          .text(forecastWeatherIconDescription)
+          .append(
+            `<img src=${forecastIconUrl} alt=${forecastWeatherIconDescription}>`
+          )
         $(`#forecast-temp-${[i]}`).text(`${forecastTemp}℉`)
         $(`#forecast-humidity-${[i]}`).text(`${forecastHumidity}% humidity`)
         $(`#forecast-wind-${[i]}`).text(`Wind Speed: ${forecastWindSpeed} mph`)
@@ -97,11 +97,14 @@ fiveDayForecast = cityName => {
     })
 }
 
-recentSearches = cityName => {
+recentSearches = city => {
   $('#recent-searches-card').removeClass('hidden')
-  $('#recent-searches-list').append(
-    `<li class="list-group-item">${cityName}</li>`
-  )
+  $('#recent-searches-list').append(`<li class="list-group-item">${city}</li>`)
 }
 
 $('#searchButton').on('click', currentForecast)
+$('#searchInput').on('keypress', function (e) {
+  if (e.which == 13) {
+    currentForecast()
+  }
+})
